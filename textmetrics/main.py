@@ -17,6 +17,7 @@ from tabulate import tabulate
 # local
 from bleu import bleu
 from common import Corpus, Candidates, References
+from custom import ngrams
 from meteor import meteor
 from red import red
 from utility import clean, storage
@@ -52,6 +53,10 @@ def display_results(candidates: Candidates) -> None:
         ('ROUGE-L: Recall', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'recall' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['recall']),
         ('ROUGE-L: F1', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'f1' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['f1']),
         ('METEOR', lambda x: 'meteor' in x and 'overall' in x['meteor'], lambda x: x['meteor']['overall']),
+        ('Ngrams: 1 (vocab)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 1 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][1]),
+        ('Ngrams: 2 (bigrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 2 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][2]),
+        ('Ngrams: 3 (trigrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 3 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][3]),
+        ('Ngrams: 4 (quadgrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 4 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][4]),
     ]
     for row_name, tester, extractor in row_info:
         row = [row_name]
@@ -100,7 +105,6 @@ def main() -> None:
             'corpora': {
                 r.name: {
                     'contents': r.read(),
-                    'tmpfile': None
                 } for r in args.references
             },
             'tmpdir': None,
@@ -110,11 +114,6 @@ def main() -> None:
         'corpora': {
             c.name: {
                 'contents': c.read(),
-                'tmpfile': None,
-                'tmpdir': None,
-                'bleu': None,
-                'rouge': None,
-                'meteor': None,
             } for c in args.candidates
         },
     }
@@ -148,6 +147,9 @@ def main() -> None:
         print('INFO: Computing METEOR...')
         meteor.meteor(references, candidates)
 
+    # Intrinsic metrics
+    print('Info: Computing ngrams...')
+    ngrams.ngrams(candidates)
 
     # Cleanup
     print('INFO: Postprocessing: Removing temporary files...')

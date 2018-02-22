@@ -49,7 +49,9 @@ def save(references: References, candidates: Candidates) -> None:
         with open(cCorpus['tmpfile'], 'w') as f:
             f.write(cCorpus['contents'])
 
-    # save references
+    # save references if they exist
+    if references is None:
+        return
     references['tmpdir'] = tempfile.mkdtemp()
     for i, rCorpus in enumerate(references['corpora'].values()):
         rCorpus['tmpfile'] = os.path.join(
@@ -59,10 +61,12 @@ def save(references: References, candidates: Candidates) -> None:
 
 
 def cleanup(references: References, candidates: Candidates) -> None:
-    # maybe cleanup references' tmp files
-    if references is not None:
-        shutil.rmtree(references['tmpdir'])
-
     # cleanup candidates' tmp files
     for cCorpus in candidates['corpora'].values():
         shutil.rmtree(cCorpus['tmpdir'])
+
+    # cleanup references' tmp files if they exist
+    if references is None:
+        return
+    shutil.rmtree(references['tmpdir'])
+

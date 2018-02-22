@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Union
 # 3rd party
 from mypy_extensions import TypedDict
 
-# results from auto metric systems
+# results from auto comparative metric systems
 
 class BLEUResults(TypedDict):
     overall: float
@@ -37,24 +37,33 @@ class ROUGEResults(TypedDict):
 class METEORResults(TypedDict):
     overall: float
 
+
+# results from custom intrinsic metrics
+
+class NgramResults(TypedDict):
+    # maps ngram number to number of unique ngram of that n
+    gram: Dict[int, int]
+
+
 # corpora objects. reference corpora are fairly barebones. candidate corpora
 # are off in their own directory as well, and store the results of their auto
 # eval metrics.
 
 class Corpus(TypedDict):
     contents: str
-    tmpfile: Optional[str]
 
 
-class ReferenceCorpus(Corpus):
-    pass
+class ReferenceCorpus(Corpus, total=False):
+    tmpfile: str
 
 
 class CandidateCorpus(Corpus, total=False):
-    tmpdir: Optional[str]
+    tmpfile: str
+    tmpdir: str
     bleu: BLEUResults
     rouge: ROUGEResults
     meteor: METEORResults
+    ngrams: NgramResults
 
 
 # references and candidates are the bigger objects that we pass around.
