@@ -50,8 +50,8 @@ def extract_res(raw_output: bytes) -> BLEUResults:
     }
 
 
-def runbleu(reference_fns: List[str], candidate_fn: str,
-            script: str = 'textmetrics/bleu/multi-bleu.perl') -> BLEUResults:
+def run_bleu(reference_fns: List[str], candidate_fn: str,
+             script: str = 'textmetrics/bleu/multi-bleu.perl') -> BLEUResults:
     """Runs `script` to compute BLEU scores for the file name candidate_fn
     given reference filenames `reference_fns`."""
     with open(candidate_fn, 'r') as in_f:
@@ -71,4 +71,4 @@ def bleu(references: References, candidates: Candidates) -> None:
     # Compute bleu for each candidate separately against all references
     ref_fns = [ref['tmpfile'] for ref in references['corpora'].values()]
     for corpus in candidates['corpora'].values():
-        corpus['bleu'] = runbleu(ref_fns, corpus['tmpfile'])
+        corpus['bleu'] = run_bleu(ref_fns, corpus['tmpfile'])

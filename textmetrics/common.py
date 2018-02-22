@@ -34,6 +34,9 @@ class ROUGEResults(TypedDict):
     rougeL: PRF
 
 
+class METEORResults(TypedDict):
+    overall: float
+
 # corpora objects. reference corpora are fairly barebones. candidate corpora
 # are off in their own directory as well, and store the results of their auto
 # eval metrics.
@@ -51,6 +54,7 @@ class CandidateCorpus(Corpus, total=False):
     tmpdir: Optional[str]
     bleu: BLEUResults
     rouge: ROUGEResults
+    meteor: METEORResults
 
 
 # references and candidates are the bigger objects that we pass around.

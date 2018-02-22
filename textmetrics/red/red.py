@@ -1,5 +1,7 @@
 """
 Simply wraps rouge's API.
+
+(Called "red" to avoid conflicting module names in Python's imports.)
 """
 
 # builtins
@@ -12,7 +14,7 @@ import rouge
 from common import References, Candidates, ROUGEResults
 
 
-def runred(reference_fn: str, candidate_fn: str) -> ROUGEResults:
+def run_red(reference_fn: str, candidate_fn: str) -> ROUGEResults:
     r = rouge.FilesRouge(candidate_fn, reference_fn)
     scores = r.get_scores(avg=True)
 
@@ -46,4 +48,4 @@ def red(references: References, candidates: Candidates) -> None:
 
     # run rouge for each of the candidates separately
     for cCorpus in candidates['corpora'].values():
-        cCorpus['rouge'] = runred(rCorpus['tmpfile'], cCorpus['tmpfile'])
+        cCorpus['rouge'] = run_red(rCorpus['tmpfile'], cCorpus['tmpfile'])

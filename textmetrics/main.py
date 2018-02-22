@@ -16,8 +16,9 @@ from tabulate import tabulate
 
 # local
 from bleu import bleu
-from red import red
 from common import Corpus, Candidates, References
+from meteor import meteor
+from red import red
 from utility import clean, storage
 
 
@@ -50,6 +51,7 @@ def display_results(candidates: Candidates) -> None:
         ('ROUGE-L: Precision', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'precision' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['precision']),
         ('ROUGE-L: Recall', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'recall' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['recall']),
         ('ROUGE-L: F1', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'f1' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['f1']),
+        ('METEOR', lambda x: 'meteor' in x and 'overall' in x['meteor'], lambda x: x['meteor']['overall']),
     ]
     for row_name, tester, extractor in row_info:
         row = [row_name]
@@ -111,6 +113,8 @@ def main() -> None:
                 'tmpfile': None,
                 'tmpdir': None,
                 'bleu': None,
+                'rouge': None,
+                'meteor': None,
             } for c in args.candidates
         },
     }
@@ -139,6 +143,11 @@ def main() -> None:
         # ROUGE
         print('INFO: Computing ROUGE...')
         red.red(references, candidates)
+
+        # METEOR
+        print('INFO: Computing METEOR...')
+        meteor.meteor(references, candidates)
+
 
     # Cleanup
     print('INFO: Postprocessing: Removing temporary files...')
