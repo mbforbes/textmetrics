@@ -5,10 +5,11 @@ Runs text metrics.
 # builtins
 import argparse
 import code
+from enum import Enum, auto
 import os
 import sys
 import tempfile
-from typing import Dict, Optional, List, Any
+from typing import Dict, Optional, List, Any, Union, Tuple
 
 # 3rd party
 from mypy_extensions import TypedDict
@@ -16,14 +17,43 @@ from tabulate import tabulate
 
 # local
 from bleu import bleu
-from common import Corpus, Candidates, References
+from common import Corpus, CandidateCorpus, Candidates, References
 from custom import ngrams
 from meteor import meteor
 from red import red
 from utility import clean, storage
 
 
-def display_results(candidates: Candidates) -> None:
+# class Metric(Enum):
+#     COMPARATIVE = auto()
+#     INTRINSIC = auto()
+
+class Verbosity(object):
+    SUMMARY = 0
+    DETAIL = 1
+
+
+Cell = Union[str,int,float]
+MetricWorklist = List[Tuple[int, str, List[Any]]]
+
+def k(c: CandidateCorpus, keys: List[Union[str,int]],
+      default: str = '--') -> Cell:
+    """Retrieves value of `c` indexed by `keys` (list of keys to be applied),
+    or `default` if not found.
+    """
+    cur = c
+    for k in keys:
+        if cur is None or k not in cur:
+            return default
+        cur = cur[k]  # type: ignore
+    return cur  # type: ignore
+
+
+def display_results(
+        candidates: Candidates,
+        comparative: bool = True,
+        intrinsic: bool = True,
+        verbosity: int = Verbosity.DETAIL) -> None:
     # Desired format:
     #
     # res type      candidate1      candidate 2      ...
@@ -36,36 +66,48 @@ def display_results(candidates: Candidates) -> None:
 
     # making a list of candidates so we can consistently iterate over them
     c_keys = list(candidates['corpora'].keys())
-    header = ['Score'] + [os.path.basename(k) for k in c_keys]
+    header = ['Metric'] + [os.path.basename(k) for k in c_keys]
 
-    # build
-    rows: List[List[Any]] = []
     # row_info contains the row name, a tester function to see if the candidate
     # has the datum, and an extractor function to extract the value from the
     # candidate if so
-    row_info = [
-        ('BLEU: Overall', lambda x: 'bleu' in x and 'overall' in x['bleu'], lambda x: x['bleu']['overall']),
-        ('BLEU-1', lambda x: 'bleu' in x and 'bleu1' in x['bleu'], lambda x: x['bleu']['bleu1']),
-        ('BLEU-2', lambda x: 'bleu' in x and 'bleu2' in x['bleu'], lambda x: x['bleu']['bleu2']),
-        ('BLEU-3', lambda x: 'bleu' in x and 'bleu3' in x['bleu'], lambda x: x['bleu']['bleu3']),
-        ('BLEU-4', lambda x: 'bleu' in x and 'bleu4' in x['bleu'], lambda x: x['bleu']['bleu4']),
-        ('ROUGE-L: Precision', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'precision' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['precision']),
-        ('ROUGE-L: Recall', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'recall' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['recall']),
-        ('ROUGE-L: F1', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'f1' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['f1']),
-        ('METEOR', lambda x: 'meteor' in x and 'overall' in x['meteor'], lambda x: x['meteor']['overall']),
-        ('Ngrams: 1 (vocab)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 1 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][1]),
-        ('Ngrams: 2 (bigrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 2 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][2]),
-        ('Ngrams: 3 (trigrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 3 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][3]),
-        ('Ngrams: 4 (quadgrams)', lambda x: 'ngrams' in x and 'gram' in x['ngrams'] and 4 in x['ngrams']['gram'], lambda x: x['ngrams']['gram'][4]),
+    comp_rows: MetricWorklist = [
+        (Verbosity.SUMMARY, 'BLEU: Overall', ['bleu', 'overall']),
+        (Verbosity.DETAIL, 'BLEU-1', ['bleu', 'bleu1']),
+        (Verbosity.DETAIL, 'BLEU-2', ['bleu', 'bleu2']),
+        (Verbosity.DETAIL, 'BLEU-3', ['bleu', 'bleu3']),
+        (Verbosity.DETAIL, 'BLEU-4', ['bleu', 'bleu4']),
+        (Verbosity.DETAIL, 'BLEU: brevity penalty', ['bleu', 'brevity_penalty']),
+        (Verbosity.DETAIL, 'BLEU: length ratio', ['bleu', 'length_ratio']),
+        (Verbosity.DETAIL, 'BLEU: candidate len', ['bleu', 'candidate_length']),
+        (Verbosity.DETAIL, 'ROUGE-L: Precision', ['rouge', 'rougeL', 'precision']),
+        (Verbosity.DETAIL, 'ROUGE-L: Recall', ['rouge', 'rougeL', 'recall']),
+        (Verbosity.SUMMARY, 'ROUGE-L: F1', ['rouge', 'rougeL', 'f1']),
+        (Verbosity.SUMMARY, 'METEOR', ['meteor', 'overall']),
     ]
-    for row_name, tester, extractor in row_info:
-        row = [row_name]
+    intr_rows: MetricWorklist = [
+        (Verbosity.SUMMARY, 'Ngrams: 1 (vocab)', ['ngrams', 'gram', 1]),
+        (Verbosity.DETAIL, 'Ngrams: 2 (bigrams)', ['ngrams', 'gram', 2]),
+        (Verbosity.DETAIL, 'Ngrams: 3 (trigrams)', ['ngrams', 'gram', 3]),
+        (Verbosity.DETAIL, 'Ngrams: 4 (quadgrams)', ['ngrams', 'gram', 4]),
+    ]
+
+    # select comparative and intrinsic subsets independently
+    worklist: MetricWorklist = []
+    if comparative:
+        worklist.extend(comp_rows)
+    if intrinsic:
+        worklist.extend(intr_rows)
+
+    # build
+    rows: List[List[Cell]] = []
+    for v, name, keys in worklist:
+        # only display rows matching desired verbosity
+        if v > verbosity:
+            continue
+        row: List[Cell] = [name]
         for c_key in c_keys:
-            candidate = candidates['corpora'][c_key]
-            if tester(candidate):
-                row.append(extractor(candidate))
-            else:
-                row.append('--')
+            row.append(k(candidates['corpora'][c_key], keys))
         rows.append(row)
 
     # display
@@ -74,15 +116,34 @@ def display_results(candidates: Candidates) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    # optional behavior args
     parser.add_argument(
         '--clean-tokens',
         type=argparse.FileType('r'),
-        default='textmetrics/utility/clean_tokens.txt',
-        help='file to read tokens to remove (one perline)')
+        default=clean.DEFAULT_FILE,
+        metavar='PATH',
+        help='file to read tokens to remove (one per line) (default: {}'.format(
+            clean.DEFAULT_FILE))
+    parser.add_argument(
+        '--no-comparative',
+        action='store_true',
+        help='provied to skip comparative metrics (BLEU, ROUGE, METEOR)')
+    parser.add_argument(
+        '--no-intrinsic',
+        action='store_true',
+        help='provied to skip intrinsic metrics (ngrams (incl. vocab), sentence lengths)')
+    parser.add_argument(
+        '--verbosity',
+        type=int,
+        default=1,
+        metavar='N',
+        help='how many metrics to display: 0 = summaries only, 1 = all (default)')
+    # core args: candidates (required), references (optional)
     parser.add_argument(
         '--references',
         nargs='+',
         type=argparse.FileType('r'),
+        metavar='PATH',
         help='list of reference files (needed for comparative metrics) (max 26)')
     parser.add_argument(
         'candidates',
@@ -100,7 +161,7 @@ def main() -> None:
     # Read files in to do preprocessing
     print('INFO: Reading files...')
     references: Optional[References] = None
-    if args.references is not None:
+    if args.references is not None and not args.no_comparative:
         references = {
             'corpora': {
                 r.name: {
@@ -134,6 +195,10 @@ def main() -> None:
     storage.save(references, candidates)
 
     # Comparative metrics
+    if args.no_comparative:
+        # Explicitly log that we're skipping only if they explicitly asked to
+        # skip.
+        print('INFO: Skipping comparative metrics...')
     if references is not None:
         # BLEU
         print('INFO: Computing BLEU...')
@@ -148,8 +213,12 @@ def main() -> None:
         meteor.meteor(references, candidates)
 
     # Intrinsic metrics
-    print('Info: Computing ngrams...')
-    ngrams.ngrams(candidates)
+    if args.no_intrinsic:
+        print('INFO: Skipping intrinsic metrics...')
+    else:
+        # Ngrams (incl. vocab w/ unigrams)
+        print('Info: Computing ngrams...')
+        ngrams.ngrams(candidates)
 
     # Cleanup
     print('INFO: Postprocessing: Removing temporary files...')
@@ -157,7 +226,7 @@ def main() -> None:
 
     # Display
     print('INFO: Formatting results...')
-    display_results(candidates)
+    display_results(candidates, not args.no_comparative, not args.no_intrinsic)
 
 
 if __name__ == '__main__':

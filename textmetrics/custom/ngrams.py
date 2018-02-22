@@ -2,8 +2,6 @@
 Computes ngram diversity.
 """
 
-import code
-
 # builtins
 from typing import List, Set
 

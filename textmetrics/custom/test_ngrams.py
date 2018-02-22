@@ -6,7 +6,7 @@ Test the ngram extractor is working correctly.
 import unittest
 
 # local
-from . import ngrams
+import ngrams
 
 
 class TestNgrams(unittest.TestCase):

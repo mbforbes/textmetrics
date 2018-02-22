@@ -5,6 +5,7 @@ Removes special tokens. Assumes tokenized text.
 import io
 from typing import Set
 
+DEFAULT_FILE = 'textmetrics/utility/clean_tokens.txt'
 
 def load(f: io.TextIOWrapper) -> Set[str]:
     """Reads `fn` and returns a set of its lines."""
