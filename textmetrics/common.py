@@ -22,8 +22,16 @@ class BLEUResults(TypedDict):
     reference_length: int
 
 
+class PRF(TypedDict):
+    precision: float
+    recall: float
+    f1: float
+
+
 class ROUGEResults(TypedDict):
-    overall: float
+    rouge1: PRF
+    rouge2: PRF
+    rougeL: PRF
 
 
 # corpora objects. reference corpora are fairly barebones. candidate corpora

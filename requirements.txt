@@ -1,4 +1,5 @@
 mypy
 mypy-extensions
 tabulate
-pyrouge
+numpy
+rouge

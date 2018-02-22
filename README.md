@@ -18,7 +18,6 @@ After cloning the repo, run:
 
 ```bash
 pip install requirements.txt
-pyrouge_set_rouge_path textmetrics/rouge/ROUGE-1.5.5
 ```
 
 ## Features

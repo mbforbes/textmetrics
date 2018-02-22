@@ -16,7 +16,7 @@ from tabulate import tabulate
 
 # local
 from bleu import bleu
-from rouge import rouge
+from red import red
 from common import Corpus, Candidates, References
 from utility import clean, storage
 
@@ -47,6 +47,9 @@ def display_results(candidates: Candidates) -> None:
         ('BLEU-2', lambda x: 'bleu' in x and 'bleu2' in x['bleu'], lambda x: x['bleu']['bleu2']),
         ('BLEU-3', lambda x: 'bleu' in x and 'bleu3' in x['bleu'], lambda x: x['bleu']['bleu3']),
         ('BLEU-4', lambda x: 'bleu' in x and 'bleu4' in x['bleu'], lambda x: x['bleu']['bleu4']),
+        ('ROUGE-L: Precision', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'precision' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['precision']),
+        ('ROUGE-L: Recall', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'recall' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['recall']),
+        ('ROUGE-L: F1', lambda x: 'rouge' in x and 'rougeL' in x['rouge'] and 'f1' in x['rouge']['rougeL'], lambda x: x['rouge']['rougeL']['f1']),
     ]
     for row_name, tester, extractor in row_info:
         row = [row_name]
@@ -133,9 +136,9 @@ def main() -> None:
         print('INFO: Computing BLEU...')
         bleu.bleu(references, candidates)
 
-        # BLEU
+        # ROUGE
         print('INFO: Computing ROUGE...')
-        rouge.rouge(references, candidates)
+        red.red(references, candidates)
 
     # Cleanup
     print('INFO: Postprocessing: Removing temporary files...')
