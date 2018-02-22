@@ -6,11 +6,10 @@ Simply wraps the BLEU perl script (multi-bleu.perl).
 import code
 import os
 import subprocess
-import tempfile
 from typing import List
 
 # local
-from common import Corpora, BLEUResults
+from common import References, Candidates, BLEUResults
 
 
 def extract_res(raw_output: bytes) -> BLEUResults:
@@ -52,7 +51,7 @@ def extract_res(raw_output: bytes) -> BLEUResults:
 
 
 def runbleu(reference_fns: List[str], candidate_fn: str,
-            script = 'textmetrics/bleu/multi-bleu.perl') -> BLEUResults:
+            script: str = 'textmetrics/bleu/multi-bleu.perl') -> BLEUResults:
     """Runs `script` to compute BLEU scores for the file name candidate_fn
     given reference filenames `reference_fns`."""
     with open(candidate_fn, 'r') as in_f:
@@ -64,27 +63,12 @@ def runbleu(reference_fns: List[str], candidate_fn: str,
     return extract_res(res.stdout)
 
 
-def bleu(references: Corpora, candidates: Corpora) -> None:
+def bleu(references: References, candidates: Candidates) -> None:
     """Runs each of `candidates` against all `references` separately.
 
     Writes results into candidates['bleu'].
     """
-    # Write all data to tmp files
-    worklist = [references, candidates]
-    for c in worklist:
-        for corpus in c.values():
-            tf = tempfile.NamedTemporaryFile(delete=False)
-            tf.write(bytes(corpus['contents'], 'utf-8'))
-            tf.close()
-            corpus['tmpfile'] = tf.name
-
-    # compute bleu for each candidate against all references
-    ref_fns = [ref['tmpfile'] for ref in references.values()]
-    for candidate in candidates.values():
-        candidate['bleu'] = runbleu(ref_fns, candidate['tmpfile'])
-
-    # cleanup tmp files
-    for c in worklist:
-        for corpus in c.values():
-            os.remove(corpus['tmpfile'])
-            corpus['tmpfile'] = None
+    # Compute bleu for each candidate separately against all references
+    ref_fns = [ref['tmpfile'] for ref in references['corpora'].values()]
+    for corpus in candidates['corpora'].values():
+        corpus['bleu'] = runbleu(ref_fns, corpus['tmpfile'])
