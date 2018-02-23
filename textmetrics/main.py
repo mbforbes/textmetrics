@@ -86,10 +86,33 @@ def display_results(
         (Verbosity.SUMMARY, 'METEOR', ['meteor', 'overall']),
     ]
     intr_rows: MetricWorklist = [
-        (Verbosity.SUMMARY, 'Ngrams: 1 (vocab)', ['ngrams', 'gram', 1]),
-        (Verbosity.DETAIL, 'Ngrams: 2 (bigrams)', ['ngrams', 'gram', 2]),
-        (Verbosity.DETAIL, 'Ngrams: 3 (trigrams)', ['ngrams', 'gram', 3]),
-        (Verbosity.DETAIL, 'Ngrams: 4 (quadgrams)', ['ngrams', 'gram', 4]),
+        # overall
+        (Verbosity.SUMMARY, '1-grams: overall unique (vocab)', ['ngrams', 'overall_unique', 1]),
+        (Verbosity.DETAIL, '1-grams: overall total (len)', ['ngrams', 'overall_total', 1]),
+        (Verbosity.DETAIL, '1-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 1]),
+        (Verbosity.DETAIL, '2-grams: overall unique', ['ngrams', 'overall_unique', 2]),
+        (Verbosity.DETAIL, '2-grams: overall total', ['ngrams', 'overall_total', 2]),
+        (Verbosity.DETAIL, '2-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 2]),
+        (Verbosity.DETAIL, '3-grams: overall unique', ['ngrams', 'overall_unique', 3]),
+        (Verbosity.DETAIL, '3-grams: overall total', ['ngrams', 'overall_total', 3]),
+        (Verbosity.DETAIL, '3-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 3]),
+        (Verbosity.DETAIL, '4-grams: overall unique', ['ngrams', 'overall_unique', 4]),
+        (Verbosity.DETAIL, '4-grams: overall total', ['ngrams', 'overall_total', 4]),
+        (Verbosity.DETAIL, '4-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 4]),
+
+        # per-line
+        (Verbosity.DETAIL, '1-grams: per-line avg unique (line-vocab)', ['ngrams', 'perline_avg_unique', 1]),
+        (Verbosity.SUMMARY, '1-grams: per-line avg total (line-len)', ['ngrams', 'perline_avg_total', 1]),
+        (Verbosity.SUMMARY, '1-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 1]),
+        (Verbosity.DETAIL, '2-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 2]),
+        (Verbosity.DETAIL, '2-grams: per-line avg total', ['ngrams', 'perline_avg_total', 2]),
+        (Verbosity.DETAIL, '2-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 2]),
+        (Verbosity.DETAIL, '3-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 3]),
+        (Verbosity.DETAIL, '3-grams: per-line avg total', ['ngrams', 'perline_avg_total', 3]),
+        (Verbosity.SUMMARY, '3-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 3]),
+        (Verbosity.DETAIL, '4-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 4]),
+        (Verbosity.DETAIL, '4-grams: per-line avg total', ['ngrams', 'perline_avg_total', 4]),
+        (Verbosity.DETAIL, '4-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 4]),
     ]
 
     # select comparative and intrinsic subsets independently
@@ -110,7 +133,12 @@ def display_results(
             row.append(k(candidates['corpora'][c_key], keys))
         rows.append(row)
 
-    # display
+    # TODO: make display method
+    # display csv
+    # for row in [header] + rows:
+    #     print(','.join([str(cell) for cell in row]))
+
+    # display table
     print(tabulate(rows, headers=header))
 
 
@@ -151,6 +179,8 @@ def main() -> None:
         type=argparse.FileType('r'),
         help='list of candidate files')
     args = parser.parse_args()
+
+    print('INFO: Using verbosity: {}'.format(args.verbosity))
 
     # LOL!
     if args.references is not None and len(args.references) > 26:
@@ -217,7 +247,7 @@ def main() -> None:
         print('INFO: Skipping intrinsic metrics...')
     else:
         # Ngrams (incl. vocab w/ unigrams)
-        print('Info: Computing ngrams...')
+        print('INFO: Computing ngrams...')
         ngrams.ngrams(candidates)
 
     # Cleanup
@@ -226,7 +256,11 @@ def main() -> None:
 
     # Display
     print('INFO: Formatting results...')
-    display_results(candidates, not args.no_comparative, not args.no_intrinsic)
+    display_results(
+        candidates,
+        not args.no_comparative,
+        not args.no_intrinsic,
+        args.verbosity)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ Test the ngram extractor is working correctly.
 import unittest
 
 # local
-import ngrams
+from .context import textmetrics
 
 
 class TestNgrams(unittest.TestCase):

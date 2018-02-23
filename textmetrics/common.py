@@ -41,8 +41,19 @@ class METEORResults(TypedDict):
 # results from custom intrinsic metrics
 
 class NgramResults(TypedDict):
-    # maps ngram number to number of unique ngram of that n
-    gram: Dict[int, int]
+    # each maps ngram number to average: unique ngrams per line, total ngrams
+    # per line (i.e., average line length), ratio of unique to total per line
+    # (i.e., some approximation of repetition).
+    perline_avg_unique: Dict[int, float]
+    perline_avg_total: Dict[int, float]
+    perline_avg_ratio: Dict[int, float]
+
+    # each maps ngram number to overall stats: unique ngrams (i.e., ngram
+    # vocab), total ngrams (e.g., n=1 means length), ratio of unique ngrams /
+    # total ngrams (i.e., some approximation of diversity of outputs).
+    overall_unique: Dict[int, int]
+    overall_total: Dict[int, int]
+    overall_ratio: Dict[int, float]
 
 
 # corpora objects. reference corpora are fairly barebones. candidate corpora
