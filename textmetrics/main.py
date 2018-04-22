@@ -88,8 +88,8 @@ def display_results(
     intr_rows: MetricWorklist = [
         # overall
         (Verbosity.SUMMARY, '1-grams: overall unique (vocab)', ['ngrams', 'overall_unique', 1]),
-        (Verbosity.DETAIL, '1-grams: overall total (len)', ['ngrams', 'overall_total', 1]),
-        (Verbosity.DETAIL, '1-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 1]),
+        (Verbosity.SUMMARY, '1-grams: overall total (len)', ['ngrams', 'overall_total', 1]),
+        (Verbosity.SUMMARY, '1-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 1]),
         (Verbosity.DETAIL, '2-grams: overall unique', ['ngrams', 'overall_unique', 2]),
         (Verbosity.DETAIL, '2-grams: overall total', ['ngrams', 'overall_total', 2]),
         (Verbosity.DETAIL, '2-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 2]),
@@ -101,7 +101,7 @@ def display_results(
         (Verbosity.DETAIL, '4-grams: overall ratio (unique/total)', ['ngrams', 'overall_ratio', 4]),
 
         # per-line
-        (Verbosity.DETAIL, '1-grams: per-line avg unique (line-vocab)', ['ngrams', 'perline_avg_unique', 1]),
+        (Verbosity.SUMMARY, '1-grams: per-line avg unique (line-vocab)', ['ngrams', 'perline_avg_unique', 1]),
         (Verbosity.SUMMARY, '1-grams: per-line avg total (line-len)', ['ngrams', 'perline_avg_total', 1]),
         (Verbosity.SUMMARY, '1-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 1]),
         (Verbosity.DETAIL, '2-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 2]),
@@ -109,7 +109,7 @@ def display_results(
         (Verbosity.DETAIL, '2-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 2]),
         (Verbosity.DETAIL, '3-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 3]),
         (Verbosity.DETAIL, '3-grams: per-line avg total', ['ngrams', 'perline_avg_total', 3]),
-        (Verbosity.SUMMARY, '3-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 3]),
+        (Verbosity.DETAIL, '3-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 3]),
         (Verbosity.DETAIL, '4-grams: per-line avg unique', ['ngrams', 'perline_avg_unique', 4]),
         (Verbosity.DETAIL, '4-grams: per-line avg total', ['ngrams', 'perline_avg_total', 4]),
         (Verbosity.DETAIL, '4-grams: per-line ratio (unique/total)', ['ngrams', 'perline_avg_ratio', 4]),
