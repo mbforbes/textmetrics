@@ -1,5 +1,7 @@
-# text-metrics
-Automatic text metrics
+# textmetrics
+
+Automatic text metrics---BLEU, ROUGE, and METEOR, plus extras like vocab and
+ngrams.
 
 ## Usage
 
