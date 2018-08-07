@@ -3,3 +3,4 @@ mypy-extensions
 tabulate
 numpy
 rouge
+six  # required by rouge

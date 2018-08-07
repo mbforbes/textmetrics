@@ -7,7 +7,7 @@ import code
 import subprocess
 
 # local
-from common import References, Candidates, METEORResults
+from textmetrics.common import References, Candidates, METEORResults
 
 
 def run_meteor(reference_fn: str, candidate_fn: str,

@@ -11,7 +11,7 @@ import code
 import rouge
 
 # local
-from common import References, Candidates, ROUGEResults
+from textmetrics.common import References, Candidates, ROUGEResults
 
 
 def run_red(reference_fn: str, candidate_fn: str) -> ROUGEResults:

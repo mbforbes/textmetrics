@@ -8,7 +8,7 @@ import typing
 from typing import List, Set, Tuple
 
 # local
-from common import Candidates, NgramResults
+from textmetrics.common import Candidates, NgramResults
 
 
 def line_ngrams(line: str, n: int) -> typing.Counter[str]:

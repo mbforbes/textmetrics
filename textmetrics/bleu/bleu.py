@@ -9,7 +9,7 @@ import subprocess
 from typing import List
 
 # local
-from common import References, Candidates, BLEUResults
+from textmetrics.common import References, Candidates, BLEUResults
 
 
 def extract_res(raw_output: bytes) -> BLEUResults:

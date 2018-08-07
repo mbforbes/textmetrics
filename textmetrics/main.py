@@ -16,12 +16,12 @@ from mypy_extensions import TypedDict
 from tabulate import tabulate
 
 # local
-from bleu import bleu
-from common import Corpus, CandidateCorpus, Candidates, References
-from custom import ngrams
-from meteor import meteor
-from red import red
-from utility import clean, storage
+from textmetrics.bleu import bleu
+from textmetrics.common import Corpus, CandidateCorpus, Candidates, References
+from textmetrics.custom import ngrams
+from textmetrics.meteor import meteor
+from textmetrics.red import red
+from textmetrics.utility import clean, storage
 
 
 # class Metric(Enum):
@@ -216,7 +216,7 @@ def main() -> None:
     removal = clean.load(args.clean_tokens)
     worklist: List[Corpus] = list(candidates['corpora'].values())
     if references is not None:
-        worklist += list(references['corpora'].values())  # type: ignore
+        worklist += list(references['corpora'].values())
     for corpus in worklist:
         corpus['contents'] = clean.clean(corpus['contents'], removal)
 
