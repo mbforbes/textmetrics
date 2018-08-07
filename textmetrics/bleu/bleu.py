@@ -2,6 +2,10 @@
 Simply wraps the BLEU perl script (multi-bleu.perl).
 """
 
+#
+# imports
+#
+
 # builtins
 import code
 import os
@@ -11,15 +15,21 @@ from typing import List
 # local
 from textmetrics.common import References, Candidates, BLEUResults
 
+#
+# globals
+#
+
+DEFAULT_BLEU_PERL = os.path.join(os.path.dirname(__file__), 'multi-bleu.perl')
+
 
 def extract_res(raw_output: bytes) -> BLEUResults:
     """Turns raw output from multi-bleu.perl script into BLEUResults format."""
-    output = str(raw_output)
+    output = str(raw_output, 'ascii')
 
     #
     # example:
     #
-    # "b'BLEU = 100.00, 100.0/100.0/100.0/100.0 (BP=1.000, ratio=1.000, hyp_len=11, ref_len=11)\\n'"
+    # 'BLEU = 100.00, 100.0/100.0/100.0/100.0 (BP=1.000, ratio=1.000, hyp_len=11, ref_len=11)\n'
     #
 
     s1, s2 = output.split('(')
@@ -50,8 +60,11 @@ def extract_res(raw_output: bytes) -> BLEUResults:
     }
 
 
-def run_bleu(reference_fns: List[str], candidate_fn: str,
-             script: str = 'textmetrics/bleu/multi-bleu.perl') -> BLEUResults:
+def run_bleu(
+        reference_fns: List[str],
+        candidate_fn: str,
+        script: str = DEFAULT_BLEU_PERL,
+    ) -> BLEUResults:
     """Runs `script` to compute BLEU scores for the file name candidate_fn
     given reference filenames `reference_fns`."""
     with open(candidate_fn, 'r') as in_f:
@@ -59,7 +72,9 @@ def run_bleu(reference_fns: List[str], candidate_fn: str,
             ['perl', script] + reference_fns,
             stdin=in_f,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+
     return extract_res(res.stdout)
 
 

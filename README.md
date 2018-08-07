@@ -40,18 +40,22 @@ even with wrapper libraries.)
 
 - [ ] pypi
 
-- [ ] API support
+- [ ] API support (possible to have interface for passing strings?)
 
 - [ ] ROUGE crashes things if it decides there aren't sentences (e.g., run with
   README.md as input and reference)
 
 - [ ] Add back in orig ROUGE for completeness (place behind switch)
 
+- [ ] BLEU perl script fails if the filename ends in `gz` because it tries to
+  un-gzip it, which happens eventually when creating a lot of files. we should
+  wrap the filename creation so this doesn't happen
+
 - [ ] ngrams has divide by zero error. With two simple files (two lines each,
   same first line, differing second line) running with `2.txt --references
   1.txt 1.txt` triggered this divide by zero
 
-- [ ] Demo for better README
+- [ ] Demo + guide for better README (should cover file + API usage)
 
 - [ ] Tests
 
