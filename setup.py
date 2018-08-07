@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(
     name='textmetrics',
-    version='0.0.1',
+    version='0.0.2',
     author='Maxwell Forbes',
     author_email='mbforbes@gmail.com',
     classifiers=[
@@ -15,7 +15,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     keywords='text-metrics text metrics nlp bleu rouge meteor ngrams vocabulary vocab',
-    packages=['textmetrics'],
+    packages=find_packages(),
     url='https://github.com/mbforbes/textmetrics/',
     license='MIT',
     description='Automatic text metrics---BLEU, ROUGE, and METEOR, pllus extras like vocab and ngrams.',
