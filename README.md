@@ -7,7 +7,7 @@ ngrams.
 
 ```bash
 # Compares each candidate (c) separately against all references (r).
-python textmetrics/main.py c1.txt c2.txt --references r1.txt r2.txt r3.txt
+python -m textmetrics.main c1.txt c2.txt --references r1.txt r2.txt r3.txt
 ```
 
 ## Installation
@@ -17,10 +17,8 @@ Requires:
 - Java 1.8 (for METEOR)
 - Python 3.6+
 
-After cloning the repo, run:
-
 ```bash
-pip install -r requirements.txt
+pip install textmetrics
 ```
 
 ## Features
@@ -59,3 +57,22 @@ even with wrapper libraries.)
 
 - [ ] Early check in each module for whether program runnable + nice error
   message (e.g., no java or bad version, no perl or bad version, etc.)
+
+
+Note to self: I followed this guide for [packaging to
+pypi](https://packaging.python.org/tutorials/packaging-projects/), and future
+uploads will probably look like:
+
+```bash
+# (1) ensure tests pass
+
+# (2) bump version in setup.py
+
+# (3) commit + push to github
+
+# (4) generate distribution
+python setup.py sdist bdist_wheel
+
+# (5) Upload
+twine upload dist/*
+```

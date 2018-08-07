@@ -1,0 +1,4 @@
+# pypi crap
+build/
+dist/
+textmetrics.egg-info/
